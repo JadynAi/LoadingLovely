@@ -21,7 +21,7 @@ import android.view.animation.LinearInterpolator;
 
 public class LeafAtom {
 
-    public static final float PETIOLE_RATIO = 0.1f;
+    public static final float PETIOLE_RATIO = 0.1f;//叶柄所占比例
     private static final String TAG = "LeafAtom";
     public static final int EXPRIENCE_OFFSET = 15;
     private float mX;
@@ -34,11 +34,10 @@ public class LeafAtom {
     private PointF mBezierControl;
     private PointF mBezierTop;
 
-    private long mTotalDuration;
+    private long mPetioleTime;//叶柄动画的时间
+    private long mArcTime;//左右轮廓弧线的时间
+    private long mLastLineTime;//最后一段叶脉的时间
 
-    private long mPetioleTime;
-    private long mArcTime;
-    private long mLastLineTime;
     private float mVeinBottomY;//叶脉最底端的Y轴坐标
     private float mOneNodeY;//第一个分叉节点
     private float mTwoNodeY;
@@ -46,9 +45,10 @@ public class LeafAtom {
     private Path mMainPath;
     private ValueAnimator mPetioleAnim;
     private ValueAnimator mArcAnim;
-    private ValueAnimator mLastAnim;
-    private AnimatorSet mEngine;
     private ValueAnimator mArcRightAnim;
+    private ValueAnimator mLastAnim;
+
+    private AnimatorSet mEngine;//集合动画，发动引擎
     private Path mOneLpath;
     private Path mOneRpath;
     private Path mTwoLpath;
@@ -59,19 +59,18 @@ public class LeafAtom {
 
         mWidth = width;
         mHeight = height;
-        mTotalDuration = duration;
 
-        mPetioleTime = (long) (mTotalDuration * PETIOLE_RATIO);
-        mArcTime = (long) (mTotalDuration * (1 - PETIOLE_RATIO) * 0.4f);
-        mLastLineTime = mTotalDuration - mPetioleTime - mArcTime * 2;
+        mPetioleTime = (long) (duration * PETIOLE_RATIO);//绘制叶柄的时间
+        mArcTime = (long) (duration * (1 - PETIOLE_RATIO) * 0.4f);//左右轮廓弧线的时间
+        mLastLineTime = duration - mPetioleTime - mArcTime * 2;//最后一段叶脉的时间
 
-        mBezierBottom = new PointF(mWidth * 0.5f, mHeight * (1 - PETIOLE_RATIO));
-        mBezierControl = new PointF(0, mHeight * (1 - 3 * PETIOLE_RATIO));
-        mBezierTop = new PointF(mWidth * 0.5f, 0);
+        mBezierBottom = new PointF(mWidth * 0.5f, mHeight * (1 - PETIOLE_RATIO));//左侧轮廓底部点
+        mBezierControl = new PointF(0, mHeight * (1 - 3 * PETIOLE_RATIO));//左侧轮廓控制点
+        mBezierTop = new PointF(mWidth * 0.5f, 0);//左侧轮廓顶部结束点
 
-        mVeinBottomY = mHeight * (1 - PETIOLE_RATIO) - 10;
-        mOneNodeY = mVeinBottomY * 4 / 5;
-        mTwoNodeY = mVeinBottomY * 2 / 5;
+        mVeinBottomY = mHeight * (1 - PETIOLE_RATIO) - 10;//右侧轮廓底部点Y轴坐标，稍稍低一点
+        mOneNodeY = mVeinBottomY * 4 / 5;//第一个节点的Y轴坐标
+        mTwoNodeY = mVeinBottomY * 2 / 5;//第二个节点Y轴坐标
         initEngine();
         setOrginalStatus();
     }
@@ -80,9 +79,12 @@ public class LeafAtom {
      * 初始化path引擎
      */
     private void initEngine() {
+        //叶柄动画，Y轴变化由底部运动到叶柄高度的地方
         mPetioleAnim = ValueAnimator.ofFloat(mHeight, mHeight * (1 - PETIOLE_RATIO)).setDuration(mPetioleTime);
+        //左右轮廓贝塞尔曲线，只需要只奥时间变化是从0~1的。起点、控制点、结束点都知道了
         mArcAnim = ValueAnimator.ofFloat(0, 1.0f).setDuration(mArcTime);
-        mLastAnim = ValueAnimator.ofFloat(mVeinBottomY, 0).setDuration(mLastLineTime);
+        //绘制叶脉的动画
+        mLastAnim = ValueAnimator.ofFloat(mVeinBottomY - 5, 0).setDuration(mLastLineTime);
 
         mPetioleAnim.setInterpolator(new LinearInterpolator());
         mArcAnim.setInterpolator(new LinearInterpolator());
@@ -126,6 +128,7 @@ public class LeafAtom {
                     mTwoLpath.moveTo(mX, mTwoNodeY);
                     mTwoRpath.moveTo(mX, mTwoNodeY);
 
+                    //第二个节点，为避免线超出叶子，取此时差值的一半作计算
                     float gapY = (mTwoNodeY - mY) * 0.5f;
                     mMainPath.addPath(mTwoLpath, 0, EXPRIENCE_OFFSET);
                     mMainPath.addPath(mTwoRpath, 0, EXPRIENCE_OFFSET);
@@ -149,6 +152,7 @@ public class LeafAtom {
 
     private void computeArcPointF(ValueAnimator animation, boolean isLeft) {
         float ratio = (float) animation.getAnimatedValue();
+        //ratio从0~1变化，左右轮廓三个点不一样
         PointF bezierStart = isLeft ? mBezierBottom : mBezierTop;
         PointF bezierControl = isLeft ? mBezierControl : new PointF(mWidth, mHeight * (1 - 3 * PETIOLE_RATIO));
         PointF bezierEnd = isLeft ? mBezierTop : new PointF(mWidth * 0.5f, mVeinBottomY);
@@ -212,6 +216,9 @@ public class LeafAtom {
                 mEngine.resume();
                 return;
             }
+        }
+        if (mEngine.isRunning()) {
+            mEngine.end();
         }
         mEngine.start();
     }

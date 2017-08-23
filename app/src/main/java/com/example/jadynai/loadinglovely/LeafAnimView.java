@@ -104,11 +104,14 @@ public class LeafAnimView extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         if (null == mLeafAtom) {
+            //传入总时长
             mLeafAtom = new LeafAtom(getWidth(), getHeight(), mValueAnimator.getDuration());
         }
         if (!mValueAnimator.isStarted()) {
+            //发动引擎
             mValueAnimator.start();
         }
+        //开始绘制
         mLeafAtom.drawGraph(canvas, mPaint);
     }
 
