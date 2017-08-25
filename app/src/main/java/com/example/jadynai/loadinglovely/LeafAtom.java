@@ -23,7 +23,7 @@ public class LeafAtom {
 
     public static final float PETIOLE_RATIO = 0.1f;//叶柄所占比例
     private static final String TAG = "LeafAtom";
-    public static final int EXPRIENCE_OFFSET = 15;
+    public static final int EXPRIENCE_OFFSET = 20;
     private float mX;
     private float mY;
 
@@ -60,9 +60,7 @@ public class LeafAtom {
         mWidth = width;
         mHeight = height;
 
-        mPetioleTime = (long) (duration * PETIOLE_RATIO);//绘制叶柄的时间
-        mArcTime = (long) (duration * (1 - PETIOLE_RATIO) * 0.4f);//左右轮廓弧线的时间
-        mLastLineTime = duration - mPetioleTime - mArcTime * 2;//最后一段叶脉的时间
+        setStepTime(duration);
 
         mBezierBottom = new PointF(mWidth * 0.5f, mHeight * (1 - PETIOLE_RATIO));//左侧轮廓底部点
         mBezierControl = new PointF(0, mHeight * (1 - 3 * PETIOLE_RATIO));//左侧轮廓控制点
@@ -75,6 +73,12 @@ public class LeafAtom {
         setOrginalStatus();
     }
 
+    private void setStepTime(long duration) {
+        mPetioleTime = (long) (duration * PETIOLE_RATIO);//绘制叶柄的时间
+        mArcTime = (long) (duration * (1 - PETIOLE_RATIO) * 0.4f);//左右轮廓弧线的时间
+        mLastLineTime = duration - mPetioleTime - mArcTime * 2;//最后一段叶脉的时间
+    }
+
     /**
      * 初始化path引擎
      */
@@ -84,7 +88,7 @@ public class LeafAtom {
         //左右轮廓贝塞尔曲线，只需要只奥时间变化是从0~1的。起点、控制点、结束点都知道了
         mArcAnim = ValueAnimator.ofFloat(0, 1.0f).setDuration(mArcTime);
         //绘制叶脉的动画
-        mLastAnim = ValueAnimator.ofFloat(mVeinBottomY - 5, 0).setDuration(mLastLineTime);
+        mLastAnim = ValueAnimator.ofFloat(mVeinBottomY, 0).setDuration(mLastLineTime);
 
         mPetioleAnim.setInterpolator(new LinearInterpolator());
         mArcAnim.setInterpolator(new LinearInterpolator());
@@ -208,6 +212,10 @@ public class LeafAtom {
         mLastAnim.end();
         mEngine.end();
         setOrginalStatus();
+    }
+
+    public void setTotalDuration(long totalDuration) {
+        setStepTime(totalDuration);
     }
 
     public void start() {

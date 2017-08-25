@@ -24,7 +24,6 @@ import android.view.View;
 public class LeafAnimView extends View {
 
     private static final String TAG = "LeafAnimView";
-    private static final float BLUR_SIZE = 5f;
 
     private ValueAnimator mValueAnimator;
     private Paint mPaint;
@@ -54,15 +53,9 @@ public class LeafAnimView extends View {
 //        mPaint.setMaskFilter(new BlurMaskFilter(BLUR_SIZE, BlurMaskFilter.Blur.SOLID));
 
         //动画引擎
-        mValueAnimator = ValueAnimator.ofFloat(0, 1);
-        mValueAnimator.setDuration(5000);
+        mValueAnimator = ValueAnimator.ofFloat(0);
+        mValueAnimator.setDuration(30);
         mValueAnimator.setRepeatCount(ValueAnimator.INFINITE);
-        mValueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator animation) {
-                invalidate();
-            }
-        });
         mValueAnimator.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationEnd(Animator animation) {
@@ -70,6 +63,12 @@ public class LeafAnimView extends View {
                 if (null != mLeafAtom) {
                     mLeafAtom.endAndClear();
                 }
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animation) {
+                super.onAnimationRepeat(animation);
+                invalidate();
             }
         });
     }
@@ -105,7 +104,7 @@ public class LeafAnimView extends View {
         super.onDraw(canvas);
         if (null == mLeafAtom) {
             //传入总时长
-            mLeafAtom = new LeafAtom(getWidth(), getHeight(), mValueAnimator.getDuration());
+            mLeafAtom = new LeafAtom(getWidth(), getHeight(), 5000);
         }
         if (!mValueAnimator.isStarted()) {
             //发动引擎
@@ -122,6 +121,15 @@ public class LeafAnimView extends View {
         if (null != mValueAnimator) {
             mValueAnimator.end();
         }
+    }
+
+    public void setTotalDuration(long totalDuration) {
+        if (null == mLeafAtom) {
+            //传入总时长
+            mLeafAtom = new LeafAtom(getWidth(), getHeight(), totalDuration);
+            return;
+        }
+        mLeafAtom.setTotalDuration(totalDuration);
     }
 
     public void start() {
