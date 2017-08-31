@@ -1,4 +1,4 @@
-package com.example.jadynai.loadinglovely;
+package com.example.jadynai.loadinglovely.boheLoading;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -23,7 +23,7 @@ public class LeafAtom {
 
     public static final float PETIOLE_RATIO = 0.1f;//叶柄所占比例
     private static final String TAG = "LeafAtom";
-    public static final int EXPRIENCE_OFFSET = 20;
+    public static final int EXPRIENCE_OFFSET = 25;
     private float mX;
     private float mY;
 

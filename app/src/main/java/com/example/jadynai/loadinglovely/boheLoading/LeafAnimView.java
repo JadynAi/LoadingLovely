@@ -1,4 +1,4 @@
-package com.example.jadynai.loadinglovely;
+package com.example.jadynai.loadinglovely.boheLoading;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;

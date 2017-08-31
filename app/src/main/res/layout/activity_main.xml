@@ -5,9 +5,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.jadynai.loadinglovely.MainActivity">
+    tools:context="com.example.jadynai.loadinglovely.boheLoading.MainActivity">
 
-    <com.example.jadynai.loadinglovely.LeafAnimView
+    <com.example.jadynai.loadinglovely.boheLoading.LeafAnimView
         android:id="@+id/leadfView"
         android:layout_width="300dp"
         android:layout_height="300dp"

@@ -1,8 +1,10 @@
-package com.example.jadynai.loadinglovely;
+package com.example.jadynai.loadinglovely.boheLoading;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+
+import com.example.jadynai.loadinglovely.R;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -28,6 +30,7 @@ public class MainActivity extends AppCompatActivity {
                 mLeafView.pause();
             }
         });
+
     }
     
 }
