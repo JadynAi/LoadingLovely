@@ -24,10 +24,26 @@ import android.view.View;
 public class LeafAnimView extends View {
 
     private static final String TAG = "LeafAnimView";
+    public static final int DEF_DURATION = 5000;
 
     private ValueAnimator mValueAnimator;
     private Paint mPaint;
     private LeafAtom mLeafAtom;
+    private AnimatorListenerAdapter mListenerAdapter = new AnimatorListenerAdapter() {
+        @Override
+        public void onAnimationEnd(Animator animation) {
+            super.onAnimationEnd(animation);
+            if (null != mLeafAtom) {
+                mLeafAtom.endAndClear();
+            }
+        }
+
+        @Override
+        public void onAnimationRepeat(Animator animation) {
+            super.onAnimationRepeat(animation);
+            invalidate();
+        }
+    };
 
     public LeafAnimView(Context context) {
         super(context);
@@ -50,27 +66,11 @@ public class LeafAnimView extends View {
         mPaint.setDither(true);
         mPaint.setStyle(Paint.Style.STROKE);
         mPaint.setStrokeWidth(5);
-//        mPaint.setMaskFilter(new BlurMaskFilter(BLUR_SIZE, BlurMaskFilter.Blur.SOLID));
-
         //动画引擎
         mValueAnimator = ValueAnimator.ofFloat(0);
         mValueAnimator.setDuration(30);
         mValueAnimator.setRepeatCount(ValueAnimator.INFINITE);
-        mValueAnimator.addListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                super.onAnimationEnd(animation);
-                if (null != mLeafAtom) {
-                    mLeafAtom.endAndClear();
-                }
-            }
-
-            @Override
-            public void onAnimationRepeat(Animator animation) {
-                super.onAnimationRepeat(animation);
-                invalidate();
-            }
-        });
+        mValueAnimator.addListener(mListenerAdapter);
     }
 
     @Override
@@ -83,7 +83,6 @@ public class LeafAnimView extends View {
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
         Log.d(TAG, "onSizeChanged : ");
-//        mLeafAtom.setWidthAndHeight(w, h);
     }
 
     @Override
@@ -104,7 +103,7 @@ public class LeafAnimView extends View {
         super.onDraw(canvas);
         if (null == mLeafAtom) {
             //传入总时长
-            mLeafAtom = new LeafAtom(getWidth(), getHeight(), 5000);
+            mLeafAtom = new LeafAtom(getWidth(), getHeight(), DEF_DURATION);
         }
         if (!mValueAnimator.isStarted()) {
             //发动引擎
