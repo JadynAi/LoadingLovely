@@ -85,36 +85,35 @@ public class CanvasView extends View {
             mValueAnimator = ValueAnimator.ofFloat(0.0f, 1.0f);
             mValueAnimator.setDuration(1000);
             mValueAnimator.setInterpolator(new LinearInterpolator());
-            mValueAnimator.setRepeatCount(ValueAnimator.INFINITE);
-            mValueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-                @Override
-                public void onAnimationUpdate(ValueAnimator animation) {
-                    float value = (float) animation.getAnimatedValue();
-                    //获取一个段落
-                    mPathMeasure.getSegment(0, mPathMeasure.getLength() * value, mAnimPath, true);
+        }
+        mValueAnimator.setRepeatCount(ValueAnimator.INFINITE);
+        mValueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                float value = (float) animation.getAnimatedValue();
+                //获取一个段落
+                mPathMeasure.getSegment(0, mPathMeasure.getLength() * value, mAnimPath, true);
 //                    mPathMeasure.getPosTan(value * mPathMeasure.getLength(), mPoss, null);
 //                    Log.d(TAG, "x : " + mPoss[0]);
 //                    Log.d(TAG, "y : " + mPoss[1]);
-                    invalidate();
-                }
-            });
+                invalidate();
+            }
+        });
 
-            mValueAnimator.addListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationRepeat(Animator animation) {
-                    super.onAnimationRepeat(animation);
-                    mPathMeasure.getSegment(0, mPathMeasure.getLength(), mAnimPath, true);
-                    //绘制完一条Path之后，再绘制下一条
-                    mPathMeasure.nextContour();
-//                    //长度为0 说明一次循环结束
-                    if (mPathMeasure.getLength() == 0) {
-                        animation.end();
-                    }
-                    invalidate();
+        mValueAnimator.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationRepeat(Animator animation) {
+                super.onAnimationRepeat(animation);
+                mPathMeasure.getSegment(0, mPathMeasure.getLength(), mAnimPath, true);
+                //绘制完一条Path之后，再绘制下一条
+                mPathMeasure.nextContour();                 
+                //长度为0 说明一次循环结束
+                if (mPathMeasure.getLength() == 0) {
+                    animation.end();
                 }
-            });
-        } else {
-        }
+                invalidate();
+            }
+        });
     }
 
     public void setTotalDuration(long duration) {
@@ -156,74 +155,11 @@ public class CanvasView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        int measuredWidth = getMeasuredWidth();
-        int measuredHeight = getMeasuredHeight();
-//        mPaint.setColor(Color.GREEN);
-//        canvas.drawLine(0, 600, 1000, 600, mPaint);
-//        canvas.save();
-//
-//        canvas.rotate(20, 0, 600);
-//        mPaint.setColor(Color.RED);
-//        canvas.drawLine(0, 600, 1000, 600, mPaint);
-//        canvas.save();
-//
-//        canvas.rotate(30, 0, 600);
-//        mPaint.setColor(Color.BLACK);
-//        canvas.drawLine(0, 600, 1000, 600, mPaint);
-//        canvas.save();
-
-//        canvas.restoreToCount(2);
-//        canvas.rotate(10, 0, 600);
-//        mPaint.setColor(Color.BLUE);
-//        canvas.drawLine(0, 600, 1000, 600, mPaint);
         if (null != mPathMeasure && mPathMeasure.getLength() == 0) {
             mPaint.setStyle(Paint.Style.FILL);
             canvas.drawPath(mOrignalPath, mPaint);
             return;
         }
         canvas.drawPath(mAnimPath, mPaint);
-    }
-
-
-    static class Polygon {
-
-        // Polygon coodinates.
-        private float[] polyY, polyX;
-
-        // Number of sides in the polygon.
-        private int polySides;
-
-        /**
-         * Default constructor.
-         *
-         * @param px Polygon y coods.
-         * @param py Polygon x coods.
-         * @param ps Polygon sides count.
-         */
-        public Polygon(float[] px, float[] py, int ps) {
-            polyX = px;
-            polyY = py;
-            polySides = ps;
-        }
-
-        /**
-         * Checks if the Polygon contains a point.
-         *
-         * @param x Point horizontal pos.
-         * @param y Point vertical pos.
-         * @return Point is in Poly flag.
-         * @see "http://alienryderflex.com/polygon/"
-         */
-        public boolean contains(float x, float y) {
-            boolean oddTransitions = false;
-            for (int i = 0, j = polySides - 1; i < polySides; j = i++) {
-                if ((Float.compare(polyY[i], y) < 0 && Float.compare(polyY[j], y) >= 0) || (Float.compare(polyY[j], y) < 0 && Float.compare(polyY[i], y) >= 0)) {
-                    if (Float.compare(polyX[i] + (y - polyY[i]) / (polyY[j] - polyY[i]) * (polyX[j] - polyX[i]), x) < 0) {
-                        oddTransitions = !oddTransitions;
-                    }
-                }
-            }
-            return oddTransitions;
-        }
     }
 }
