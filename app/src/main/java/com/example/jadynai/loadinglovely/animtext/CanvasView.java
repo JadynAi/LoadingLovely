@@ -64,11 +64,11 @@ public class CanvasView extends View {
         if (null == mPathMeasure) {
             mPathMeasure = new PathMeasure();
         }
-//        //先重置一下需要显示动画的path
+       //先重置一下需要显示动画的path
         mAnimPath.reset();
         mAnimPath.moveTo(0, 0);
         mPathMeasure.setPath(orignalPath, false);
-//        //这里仅仅是为了 计算一下每一段的duration
+      //这里仅仅是为了 计算一下每一段的duration
         mTextCount = 0;
         while (mPathMeasure.getLength() != 0) {
             mPathMeasure.nextContour();
@@ -83,7 +83,7 @@ public class CanvasView extends View {
     private void initEngine() {
         if (null == mValueAnimator) {
             mValueAnimator = ValueAnimator.ofFloat(0.0f, 1.0f);
-            mValueAnimator.setDuration(1000);
+            mValueAnimator.setDuration(900);
             mValueAnimator.setInterpolator(new LinearInterpolator());
         }
         mValueAnimator.setRepeatCount(ValueAnimator.INFINITE);
@@ -93,7 +93,7 @@ public class CanvasView extends View {
                 float value = (float) animation.getAnimatedValue();
                 //获取一个段落
                 mPathMeasure.getSegment(0, mPathMeasure.getLength() * value, mAnimPath, true);
-//                    mPathMeasure.getPosTan(value * mPathMeasure.getLength(), mPoss, null);
+                mPathMeasure.getPosTan(value * mPathMeasure.getLength(), mPoss, null);
 //                    Log.d(TAG, "x : " + mPoss[0]);
 //                    Log.d(TAG, "y : " + mPoss[1]);
                 invalidate();
@@ -106,7 +106,7 @@ public class CanvasView extends View {
                 super.onAnimationRepeat(animation);
                 mPathMeasure.getSegment(0, mPathMeasure.getLength(), mAnimPath, true);
                 //绘制完一条Path之后，再绘制下一条
-                mPathMeasure.nextContour();                 
+                mPathMeasure.nextContour();
                 //长度为0 说明一次循环结束
                 if (mPathMeasure.getLength() == 0) {
                     animation.end();
