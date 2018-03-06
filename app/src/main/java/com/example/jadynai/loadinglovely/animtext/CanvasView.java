@@ -32,8 +32,6 @@ public class CanvasView extends View {
     private ValueAnimator mValueAnimator;
     private int mTextCount;
 
-    private float[] mPoss = new float[2];
-    private float[] mTan = new float[2];
     private Path mOrignalPath;
 
     public CanvasView(Context context) {
@@ -68,10 +66,9 @@ public class CanvasView extends View {
         mAnimPath.reset();
         mAnimPath.moveTo(0, 0);
         mPathMeasure.setPath(orignalPath, false);
-      //这里仅仅是为了 计算一下每一段的duration
+        // getLength（）方法获得的是当前path的长度；而nextContour（）方法是将Path切换到下一段Path，多应用在复杂path中
         mTextCount = 0;
-        while (mPathMeasure.getLength() != 0) {
-            mPathMeasure.nextContour();
+        while (mPathMeasure.nextContour()) {
             mTextCount++;
         }
         //经过上面这段计算duration代码的折腾 需要重新初始化pathMeasure
@@ -93,9 +90,6 @@ public class CanvasView extends View {
                 float value = (float) animation.getAnimatedValue();
                 //获取一个段落
                 mPathMeasure.getSegment(0, mPathMeasure.getLength() * value, mAnimPath, true);
-                mPathMeasure.getPosTan(value * mPathMeasure.getLength(), mPoss, null);
-//                    Log.d(TAG, "x : " + mPoss[0]);
-//                    Log.d(TAG, "y : " + mPoss[1]);
                 invalidate();
             }
         });
