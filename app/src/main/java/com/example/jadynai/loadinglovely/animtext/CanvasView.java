@@ -58,20 +58,22 @@ public class CanvasView extends View {
     }
 
     public void setPath(Path orignalPath) {
+        // 保留一份原始Path，用作绘制最终填色的文字
         mOrignalPath = orignalPath;
         if (null == mPathMeasure) {
             mPathMeasure = new PathMeasure();
         }
-       //先重置一下需要显示动画的path
+        //先重置一下需要显示动画的path
         mAnimPath.reset();
         mAnimPath.moveTo(0, 0);
         mPathMeasure.setPath(orignalPath, false);
         // getLength（）方法获得的是当前path的长度；而nextContour（）方法是将Path切换到下一段Path，多应用在复杂path中
         mTextCount = 0;
+        // 计算文字总共有多少段Path
         while (mPathMeasure.nextContour()) {
             mTextCount++;
         }
-        //经过上面这段计算duration代码的折腾 需要重新初始化pathMeasure
+        // PathMeasure重新设置一次
         mPathMeasure.setPath(orignalPath, false);
         mPaint.setStyle(Paint.Style.STROKE);
         initEngine();
@@ -79,16 +81,18 @@ public class CanvasView extends View {
 
     private void initEngine() {
         if (null == mValueAnimator) {
+            // 如果一个文本Path包含n个小Path，那么属性动画会Repeat运行n次，每一段小path默认动画时间为900ms
             mValueAnimator = ValueAnimator.ofFloat(0.0f, 1.0f);
             mValueAnimator.setDuration(900);
             mValueAnimator.setInterpolator(new LinearInterpolator());
         }
+        // 引擎无限次重复发动
         mValueAnimator.setRepeatCount(ValueAnimator.INFINITE);
         mValueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
                 float value = (float) animation.getAnimatedValue();
-                //获取一个段落
+                // 将一段小Path从0%到100%赋值到mAnimPath中，调用重绘
                 mPathMeasure.getSegment(0, mPathMeasure.getLength() * value, mAnimPath, true);
                 invalidate();
             }
@@ -98,11 +102,8 @@ public class CanvasView extends View {
             @Override
             public void onAnimationRepeat(Animator animation) {
                 super.onAnimationRepeat(animation);
-                mPathMeasure.getSegment(0, mPathMeasure.getLength(), mAnimPath, true);
-                //绘制完一条Path之后，再绘制下一条
-                mPathMeasure.nextContour();
-                //长度为0 说明一次循环结束
-                if (mPathMeasure.getLength() == 0) {
+                //绘制完一条Path之后，再绘制下一条，直到完成为止。
+                if (!mPathMeasure.nextContour()) {
                     animation.end();
                 }
                 invalidate();
