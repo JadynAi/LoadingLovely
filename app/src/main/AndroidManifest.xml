@@ -12,6 +12,9 @@
         <activity android:name=".boheLoading.MainActivity">
         </activity>
         <activity android:name=".animtext.AnimTextActivity">
+            
+        </activity>
+        <activity android:name=".flicker.TextFlickerActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 
