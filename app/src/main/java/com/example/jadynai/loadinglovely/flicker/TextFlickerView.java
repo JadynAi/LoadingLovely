@@ -71,13 +71,14 @@ public class TextFlickerView extends AppCompatTextView {
             if (w > 0) {
                 //控制阴影的Matrix，通过Matrix的变化来实现闪光的滑过效果
                 mShadowMatrix = new Matrix();
+                //因为使用了LinearGradient,所以Paint本身的color将毫无意义，所以colors的起始点的色值必须和本来色值一致
                 int currentTextColor = getCurrentTextColor();
                 //渐变色层.x0,y0是起点坐标，x1，y1是终点坐标
-                mLinearGradient = new LinearGradient(0, 0, SHADOW_W, 0, new int[] {currentTextColor, Color.GREEN, currentTextColor},
+                mLinearGradient = new LinearGradient(0, 0, SHADOW_W, 0, new int[] {currentTextColor, Color.GREEN, Color.BLUE},
                         null, Shader.TileMode.CLAMP);
                 //画笔设置Shader
                 getPaint().setShader(mLinearGradient);
-                //使用属性动画作为引擎
+                //使用属性动画作为引擎，数值从-SHADOW变化到TextView本身的宽度。间隔时间未1500ms
                 mValueAnimator = ValueAnimator.ofFloat(-SHADOW_W, w).setDuration(1500);
                 mValueAnimator.setInterpolator(new LinearInterpolator());
                 mValueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
@@ -93,6 +94,7 @@ public class TextFlickerView extends AppCompatTextView {
                     @Override
                     public void onAnimationRepeat(Animator animation) {
                         super.onAnimationRepeat(animation);
+                        //每次动画重复时，将Matrix重置
                         mShadowMatrix.reset();
                     }
 
