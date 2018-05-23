@@ -35,6 +35,7 @@ public class PenView extends View {
     }
 
     private void init(Context context) {
+        
     }
 
     @Override
@@ -53,7 +54,6 @@ public class PenView extends View {
         mBasePen.onTouchEvent(event1);
         switch (event.getActionMasked()) {
             case MotionEvent.ACTION_DOWN:
-                break;
             case MotionEvent.ACTION_MOVE:
                 invalidate();
                 break;

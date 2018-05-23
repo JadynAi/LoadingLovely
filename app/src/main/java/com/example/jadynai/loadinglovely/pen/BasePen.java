@@ -7,11 +7,11 @@ import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.support.annotation.FloatRange;
 import android.support.annotation.NonNull;
+import android.util.Log;
 import android.view.MotionEvent;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 /**
  * @version:
@@ -24,8 +24,6 @@ import java.util.Random;
 public abstract class BasePen {
 
     protected String TAG = getClass().getName();
-
-    protected Random mRandom = new Random();
 
     protected Paint mPaint;
     protected Canvas mCanvas;
@@ -53,19 +51,25 @@ public abstract class BasePen {
     protected abstract Paint generateSpecificPaint();
 
     public void onTouchEvent(MotionEvent event1) {
+        Log.d(TAG, "onTouchEvent: " + event1.getActionMasked());
         switch (event1.getActionMasked()) {
             case MotionEvent.ACTION_DOWN:
                 clearPoints();
+                handlePoints(event1);
                 break;
             case MotionEvent.ACTION_MOVE:
-                float mX = event1.getX();
-                float mY = event1.getY();
-                mPoints.add(new Point(mX, mY));
+                handlePoints(event1);
                 break;
             case MotionEvent.ACTION_UP:
-            case MotionEvent.ACTION_CANCEL:
-                clearPoints();
                 break;
+        }
+    }
+
+    private void handlePoints(MotionEvent event1) {
+        float x = event1.getX();
+        float y = event1.getY();
+        if (x > 0 && y > 0) {
+            mPoints.add(new Point(x, y));
         }
     }
 
@@ -75,6 +79,9 @@ public abstract class BasePen {
             drawDetail(canvas);
         }
     }
+
+    //由各个画笔实现,参数为所依赖的view的canvas
+    protected abstract void drawDetail(Canvas canvas);
 
     private void clearPoints() {
         if (mPoints == null) {
@@ -87,21 +94,36 @@ public abstract class BasePen {
         if (mPoints == null || mPoints.isEmpty()) {
             return new Point(0, 0);
         }
-
         return mPoints.get(mPoints.size() - 1);
     }
 
-    //由各个画笔实现,参数为所依赖的view的canvas
-    protected abstract void drawDetail(Canvas canvas);
-
-    protected float getRandomPNValue(float value) {
-        return mRandom.nextBoolean() ? value : 0 - value;
+    protected List<Point> getPoints() {
+        ArrayList<Point> points = new ArrayList<>();
+        if (mPoints == null) {
+            return points;
+        }
+        for (Point point : mPoints) {
+            points.add(point.clone());
+        }
+        return points;
     }
 
     public void clearDraw() {
         if (mCanvas == null) {
             return;
         }
+        clearPoints();
         mCanvas.drawColor(Color.WHITE, PorterDuff.Mode.CLEAR);
+    }
+
+    public void release() {
+        if (mPoints != null) {
+            mPoints.clear();
+            mPoints = null;
+        }
+        if (mBitmap != null) {
+            mBitmap.recycle();
+            mBitmap = null;
+        }
     }
 }

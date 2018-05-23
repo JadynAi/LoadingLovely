@@ -8,7 +8,7 @@ package com.example.jadynai.loadinglovely.pen;
  * @ChangeList:
  */
 
-public class Point {
+public class Point implements Cloneable {
 
     public float x;
     public float y;
@@ -16,5 +16,15 @@ public class Point {
     public Point(float x, float y) {
         this.x = x;
         this.y = y;
+    }
+
+    @Override
+    public Point clone() {
+        try {
+            return (Point) super.clone();
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace();
+            return new Point(x, y);
+        }
     }
 }
