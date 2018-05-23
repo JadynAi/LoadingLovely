@@ -51,8 +51,12 @@ abstract class BasePen(w: Int, h: Int) {
 
     fun onDraw(canvas: Canvas) {
         if (points.isNotEmpty()) {
+            canvas.drawBitmap(bitmap, 0f, 0f, null)
+            drawDetail(canvas)
         }
     }
+
+    abstract fun drawDetail(canvas: Canvas)
 
     fun clearPoints() {
         points?.apply {
