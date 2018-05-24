@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.support.annotation.FloatRange;
+import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -52,6 +53,7 @@ public abstract class BasePen {
 
     public void onTouchEvent(MotionEvent event1) {
         Log.d(TAG, "onTouchEvent: " + event1.getActionMasked());
+        Log.d(TAG, "onTouchEventgetSize : "+event1.getSize());
         switch (event1.getActionMasked()) {
             case MotionEvent.ACTION_DOWN:
                 clearPoints();
@@ -106,6 +108,53 @@ public abstract class BasePen {
             points.add(point.clone());
         }
         return points;
+    }
+
+    /**
+     * @return 此次move的距离
+     */
+    protected double getLastDis() {
+        return getIndexDis(getPoints().size() - 1);
+    }
+
+    private double getIndexDis(@IntRange(from = 1) int index) {
+        if (getPoints().size() <= 1) {
+            return 0;
+        }
+        if (index < 1 || index >= getPoints().size()) {
+            return 0;
+        }
+        Point indexP = getPoints().get(index);
+        Point lastP = getPoints().get(index - 1);
+        return Math.hypot(indexP.x - lastP.x, indexP.y - lastP.y);
+    }
+
+    protected double getIndexRadians(@IntRange(from = 1) int index) {
+        if (getPoints().size() <= 1) {
+            return -1;
+        }
+        if (index < 1 || index >= getPoints().size()) {
+            return -1;
+        }
+        Point indexP = getPoints().get(index);
+        Point lastP = getPoints().get(index - 1);
+        float gapX = Math.abs(lastP.x - indexP.x);
+        float gapY = Math.abs(lastP.y - indexP.y);
+        return Math.toRadians(Math.toDegrees(Math.atan2(gapY, gapX)));
+    }
+
+    /**
+     * @return 滑动总距离
+     */
+    public double getTotalDis() {
+        if (getPoints().isEmpty() || getPoints().size() == 1) {
+            return 0;
+        }
+        double total = 0;
+        for (int i = 1; i < getPoints().size(); i++) {
+            total += getIndexDis(i);
+        }
+        return total;
     }
 
     public void clearDraw() {

@@ -29,10 +29,14 @@ public class SprayPen extends BasePen {
 
     private int mTotalNum;
 
+    //判断滑动过快的标准距离
+    private double mStandardDis;
+
     public SprayPen(int w, int h) {
         super(w, h);
-        float v = w / 504f;
+        float v = ((float) (Math.hypot(w, h))) / 980f;
         mCricleR = v < 1 ? 1 : v;
+        mStandardDis = Math.hypot(w, h) / 48;
         setSprayData();
     }
 
@@ -41,11 +45,7 @@ public class SprayPen extends BasePen {
         Paint paint = new Paint();
         paint.setColor(Color.BLACK);
         paint.setStyle(Paint.Style.FILL);
-//        paint.setStrokeCap(Paint.Cap.ROUND);//结束的笔画为圆心
-//        paint.setStrokeJoin(Paint.Join.ROUND);//连接处为圆角
         paint.setAntiAlias(true);
-//        paint.setStrokeMiter(1.0f);//设置笔画倾斜度
-        //模糊效果
 //        paint.setMaskFilter(new BlurMaskFilter(BLUR_SIZE, BlurMaskFilter.Blur.SOLID));
         return paint;
     }
@@ -70,37 +70,49 @@ public class SprayPen extends BasePen {
         if (getPoints().isEmpty()) {
             return;
         }
-
-        float x = getCurPoint().x;
-        float y = getCurPoint().y;
-        drawSpray(x, y);
+        //当确实在滑动的时候，并且距离过于小的时候，不绘制，避免某些点过浓.
+        if (getTotalDis() >= mPenW * getPoints().size() && getLastDis() <= (mPenW / 2)) {
+            return;
+        }
+        double gapCircle = getLastDis() - mPenW * 2;
+        if (gapCircle >= mStandardDis) {
+            int v = (int) (getLastDis() / (mPenW * 0.75));
+            float gapX = getPoints().get(getPoints().size() - 1).x - getPoints().get(getPoints().size() - 2).x;
+            float gapY = getPoints().get(getPoints().size() - 1).y - getPoints().get(getPoints().size() - 2).y;
+            for (int i = 1; i <= v; i++) {
+                float x = (float) (getPoints().get(getPoints().size() - 2).x + (gapX * i * v / getLastDis()));
+                float y = (float) (getPoints().get(getPoints().size() - 2).y + (gapY * i * v / getLastDis()));
+                drawSpray(x, y, (int) (mTotalNum * 0.6));
+            }
+        } else {
+            drawSpray(getCurPoint().x, getCurPoint().y, mTotalNum);
+        }
     }
 
-    private void drawSpray(float x, float y) {
-        for (int i = 0; i < mTotalNum; i++) {
-            float[] randomPoint = getRandomPoint(x, y, mPenW, false);
+    private void drawSpray(float x, float y, int totalNum) {
+        for (int i = 0; i < totalNum; i++) {
+            float[] randomPoint = getRandomPoint(x, y, mPenW, true);
             mCanvas.drawCircle(randomPoint[0], randomPoint[1], mCricleR, mPaint);
         }
     }
 
+    /**
+     * 根据圆解析式求随机点
+     */
     private float[] getRandomPoint(float baseX, float baseY, int r) {
         if (r <= 0) {
             r = 1;
         }
         float[] ints = new float[2];
-        float x = mRandom.nextInt(r + 1);
+        float x = mRandom.nextInt(r);
         float y = (float) Math.sqrt(Math.pow(r, 2) - Math.pow(x, 2));
-//        y = mRandom.nextInt((int) y);
+        y = mRandom.nextInt((int) y);
 
         x = baseX + getRandomPNValue(x);
         y = baseY + getRandomPNValue(y);
         ints[0] = x;
         ints[1] = y;
         return ints;
-    }
-
-    private float getRandomPNValue(float value) {
-        return mRandom.nextBoolean() ? value : 0 - value;
     }
 
     /**
@@ -132,5 +144,9 @@ public class SprayPen extends BasePen {
         ints[0] = x;
         ints[1] = y;
         return ints;
+    }
+
+    private float getRandomPNValue(float value) {
+        return mRandom.nextBoolean() ? value : 0 - value;
     }
 }

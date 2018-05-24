@@ -1,8 +1,6 @@
 package com.example.jadynai.loadinglovely.pen.kotlin
 
-import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.graphics.Paint
+import android.graphics.*
 import android.view.MotionEvent
 
 /**
@@ -14,10 +12,10 @@ import android.view.MotionEvent
  */
 abstract class BasePen(w: Int, h: Int) {
 
-    var points = ArrayList<Point>()
-    var bitmap: Bitmap
-    var canvas: Canvas
-    var paint: Paint
+    private var points = ArrayList<Point>()
+    private var bitmap: Bitmap
+    private var canvas: Canvas
+    private var paint: Paint
 
     init {
         bitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
@@ -58,11 +56,34 @@ abstract class BasePen(w: Int, h: Int) {
 
     abstract fun drawDetail(canvas: Canvas)
 
-    fun clearPoints() {
+    private fun clearPoints() {
         points?.apply {
             clear()
         }
     }
+
+    protected fun getCurPoint(): Point {
+        return if (points.isEmpty()) Point(0f, 0f) else points.last()
+    }
+
+    protected fun getPoints(): List<Point> {
+        return ArrayList(points)
+    }
+
+    fun clearDraw() {
+        clearPoints()
+        canvas?.drawColor(Color.WHITE, PorterDuff.Mode.CLEAR)
+    }
+
+    private fun release() {
+        points.clear()
+        bitmap.recycle()
+    }
 }
 
-class Point(val x: Float, val y: Float)
+class Point(x: Float, y: Float) {
+    val mX = x
+        get
+    val mY = y
+        get
+}
