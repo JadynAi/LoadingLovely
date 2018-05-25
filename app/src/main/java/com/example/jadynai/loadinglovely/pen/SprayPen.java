@@ -77,7 +77,8 @@ public class SprayPen extends BasePen {
         }
         double gapCircle = getLastDis() - mPenR * 2;
         if (gapCircle >= mStandardDis) {
-            int stepDis = (int) (mPenR * 1.6);
+            //手速过快时
+            float stepDis = mPenR * 1.6f;
             int v = (int) (getLastDis() / stepDis);
             float gapX = getPoints().get(getPoints().size() - 1).x - getPoints().get(getPoints().size() - 2).x;
             float gapY = getPoints().get(getPoints().size() - 1).y - getPoints().get(getPoints().size() - 2).y;
@@ -85,16 +86,17 @@ public class SprayPen extends BasePen {
                 float x = (float) (getPoints().get(getPoints().size() - 2).x + (gapX * i * stepDis / getLastDis()));
                 float y = (float) (getPoints().get(getPoints().size() - 2).y + (gapY * i * stepDis / getLastDis()));
                 Log.d(TAG, "drawDetail calculate : " + calculate(i, 1, v));
-                drawSpray(x, y, (int) (mTotalNum * calculate(i, 1, v)));
+                drawSpray(x, y, (int) (mTotalNum * calculate(i, 1, v)), mRandom.nextBoolean());
             }
         } else {
-            drawSpray(getCurPoint().x, getCurPoint().y, mTotalNum);
+            //匀速
+            drawSpray(getCurPoint().x, getCurPoint().y, mTotalNum, true);
         }
     }
 
-    private void drawSpray(float x, float y, int totalNum) {
+    private void drawSpray(float x, float y, int totalNum, boolean isUniform) {
         for (int i = 0; i < totalNum; i++) {
-            float[] randomPoint = getRandomPoint(x, y, mPenR, true);
+            float[] randomPoint = getRandomPoint(x, y, mPenR, isUniform);
             mCanvas.drawCircle(randomPoint[0], randomPoint[1], mCricleR, mPaint);
         }
     }

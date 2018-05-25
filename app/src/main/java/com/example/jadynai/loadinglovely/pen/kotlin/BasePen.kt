@@ -1,6 +1,7 @@
 package com.example.jadynai.loadinglovely.pen.kotlin
 
 import android.graphics.*
+import android.support.annotation.IntRange
 import android.view.MotionEvent
 
 /**
@@ -14,13 +15,40 @@ abstract class BasePen(w: Int, h: Int) {
 
     private var points = ArrayList<Point>()
     private var bitmap: Bitmap
-    private var canvas: Canvas
-    private var paint: Paint
+    protected var canvas: Canvas
+    protected var paint: Paint
+
+    protected val curPoint: Point
+        get() = if (points.isEmpty()) Point(0f, 0f) else points.last()
+
+    protected val lastDis: Double
+        get() {
+            if (points.isEmpty()) {
+                return 0.0
+            }
+            return getIndexDis(points.lastIndex)
+        }
+
+    val totalDis: Double
+        get() {
+            if (points.size <= 1) {
+                return 0.0
+            }
+            var total = 0.0
+            for (i in 1 until points.size) {
+                total += getIndexDis(i)
+            }
+            return total
+        }
 
     init {
         bitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
         canvas = Canvas(bitmap)
         paint = generateSpecificPaint()
+    }
+
+    open fun setPenW(width: Float){
+
     }
 
     abstract fun generateSpecificPaint(): Paint
@@ -62,12 +90,20 @@ abstract class BasePen(w: Int, h: Int) {
         }
     }
 
-    protected fun getCurPoint(): Point {
-        return if (points.isEmpty()) Point(0f, 0f) else points.last()
-    }
-
     protected fun getPoints(): List<Point> {
         return ArrayList(points)
+    }
+
+    protected fun getIndexDis(@IntRange(from = 1) index: Int): Double {
+        if (points.size <= 1) {
+            return 0.0
+        }
+        if (index < 1 || index >= points.size) {
+            return 0.0
+        }
+        val indexP = points[index]
+        val lastP = points[index - 1]
+        return Math.hypot((indexP.mX - lastP.mX).toDouble(), (indexP.mY - lastP.mY).toDouble())
     }
 
     fun clearDraw() {
