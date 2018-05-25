@@ -153,6 +153,9 @@ public class SprayPen extends BasePen {
         return mRandom.nextBoolean() ? value : 0 - value;
     }
 
+    /**
+     * 使用（x-（min+max）/2)^2/（min-（min+max）/2）^2作为粒子密度比函数
+     */
     private static float calculate(int index, int min, int max) {
         float maxProbability = 0.6f;
         float minProbability = 0.15f;
