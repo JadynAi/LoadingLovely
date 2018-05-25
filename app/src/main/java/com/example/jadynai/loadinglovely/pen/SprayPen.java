@@ -3,6 +3,7 @@ package com.example.jadynai.loadinglovely.pen;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.util.Log;
 
 import java.util.Random;
 
@@ -22,7 +23,7 @@ public class SprayPen extends BasePen {
 
     protected Random mRandom = new Random();
 
-    private int mPenW = 40;
+    private int mPenR = 40;
 
     //喷漆密度，设定为半径为10的圈内的点数
     private int mDensity = 40;
@@ -54,7 +55,7 @@ public class SprayPen extends BasePen {
     public void setPenWidth(float width) {
         super.setPenWidth(width);
         int w = (int) (width * 0.5f);
-        mPenW = w < 5 ? 5 : w;
+        mPenR = w < 5 ? 5 : w;
         setSprayData();
     }
 
@@ -62,7 +63,7 @@ public class SprayPen extends BasePen {
      * 设置一些喷漆的属性
      */
     private void setSprayData() {
-        mTotalNum = mPenW / 10 * mDensity;
+        mTotalNum = mPenR / 10 * mDensity;
     }
 
     @Override
@@ -71,18 +72,20 @@ public class SprayPen extends BasePen {
             return;
         }
         //当确实在滑动的时候，并且距离过于小的时候，不绘制，避免某些点过浓.
-        if (getTotalDis() >= mPenW * getPoints().size() && getLastDis() <= (mPenW / 2)) {
+        if (getTotalDis() >= mPenR * getPoints().size() && getLastDis() <= (mPenR / 2)) {
             return;
         }
-        double gapCircle = getLastDis() - mPenW * 2;
+        double gapCircle = getLastDis() - mPenR * 2;
         if (gapCircle >= mStandardDis) {
-            int v = (int) (getLastDis() / (mPenW * 0.75));
+            int stepDis = (int) (mPenR * 1.6);
+            int v = (int) (getLastDis() / stepDis);
             float gapX = getPoints().get(getPoints().size() - 1).x - getPoints().get(getPoints().size() - 2).x;
             float gapY = getPoints().get(getPoints().size() - 1).y - getPoints().get(getPoints().size() - 2).y;
             for (int i = 1; i <= v; i++) {
-                float x = (float) (getPoints().get(getPoints().size() - 2).x + (gapX * i * v / getLastDis()));
-                float y = (float) (getPoints().get(getPoints().size() - 2).y + (gapY * i * v / getLastDis()));
-                drawSpray(x, y, (int) (mTotalNum * 0.6));
+                float x = (float) (getPoints().get(getPoints().size() - 2).x + (gapX * i * stepDis / getLastDis()));
+                float y = (float) (getPoints().get(getPoints().size() - 2).y + (gapY * i * stepDis / getLastDis()));
+                Log.d(TAG, "drawDetail calculate : " + calculate(i, 1, v));
+                drawSpray(x, y, (int) (mTotalNum * calculate(i, 1, v)));
             }
         } else {
             drawSpray(getCurPoint().x, getCurPoint().y, mTotalNum);
@@ -91,7 +94,7 @@ public class SprayPen extends BasePen {
 
     private void drawSpray(float x, float y, int totalNum) {
         for (int i = 0; i < totalNum; i++) {
-            float[] randomPoint = getRandomPoint(x, y, mPenW, true);
+            float[] randomPoint = getRandomPoint(x, y, mPenR, true);
             mCanvas.drawCircle(randomPoint[0], randomPoint[1], mCricleR, mPaint);
         }
     }
@@ -148,5 +151,23 @@ public class SprayPen extends BasePen {
 
     private float getRandomPNValue(float value) {
         return mRandom.nextBoolean() ? value : 0 - value;
+    }
+
+    private static float calculate(int index, int min, int max) {
+        float maxProbability = 0.6f;
+        float minProbability = 0.15f;
+        if (max - min + 1 <= 4) {
+            return maxProbability;
+        }
+        int mid = (max + min) / 2;
+        int maxValue = (int) Math.pow(mid - min, 2);
+        float ratio = (float) (Math.pow(index - mid, 2) / maxValue);
+        if (ratio >= maxProbability) {
+            return maxProbability;
+        } else if (ratio <= minProbability) {
+            return minProbability;
+        } else {
+            return ratio;
+        }
     }
 }

@@ -53,7 +53,6 @@ public abstract class BasePen {
 
     public void onTouchEvent(MotionEvent event1) {
         Log.d(TAG, "onTouchEvent: " + event1.getActionMasked());
-        Log.d(TAG, "onTouchEventgetSize : "+event1.getSize());
         switch (event1.getActionMasked()) {
             case MotionEvent.ACTION_DOWN:
                 clearPoints();
@@ -138,8 +137,8 @@ public abstract class BasePen {
         }
         Point indexP = getPoints().get(index);
         Point lastP = getPoints().get(index - 1);
-        float gapX = Math.abs(lastP.x - indexP.x);
-        float gapY = Math.abs(lastP.y - indexP.y);
+        float gapX = lastP.x - indexP.x;
+        float gapY = lastP.y - indexP.y;
         return Math.toRadians(Math.toDegrees(Math.atan2(gapY, gapX)));
     }
 
