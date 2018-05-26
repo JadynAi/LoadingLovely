@@ -3,7 +3,6 @@ package com.example.jadynai.loadinglovely.pen;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.util.Log;
 
 import java.util.Random;
 
@@ -77,15 +76,17 @@ public class SprayPen extends BasePen {
         }
         double gapCircle = getLastDis() - mPenR * 2;
         if (gapCircle >= mStandardDis) {
-            //手速过快时
+            //手速过快时，以画笔半径计算笔迹点差值
             float stepDis = mPenR * 1.6f;
+            //模拟笔迹点的数量
             int v = (int) (getLastDis() / stepDis);
+            //两点间的差值
             float gapX = getPoints().get(getPoints().size() - 1).x - getPoints().get(getPoints().size() - 2).x;
             float gapY = getPoints().get(getPoints().size() - 1).y - getPoints().get(getPoints().size() - 2).y;
+            //描绘笔迹点
             for (int i = 1; i <= v; i++) {
                 float x = (float) (getPoints().get(getPoints().size() - 2).x + (gapX * i * stepDis / getLastDis()));
                 float y = (float) (getPoints().get(getPoints().size() - 2).y + (gapY * i * stepDis / getLastDis()));
-                Log.d(TAG, "drawDetail calculate : " + calculate(i, 1, v));
                 drawSpray(x, y, (int) (mTotalNum * calculate(i, 1, v)), mRandom.nextBoolean());
             }
         } else {
