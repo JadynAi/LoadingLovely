@@ -110,18 +110,26 @@ class FlipView(context: Context, attributes: AttributeSet) : View(context, attri
                         if (statusFlip == DOWN_FLIP) {
                             //向下翻并且当前页不等于0
                             rotateF = (1 - ratio) * 180f
+                            if (rotateF <= 0f) {
+                                this.action = MotionEvent.ACTION_UP
+                                resetData(this)
+                            }
                             invalidate()
                         } else if (statusFlip == UP_FLIP) {
                             //向上翻，并且不是最后一页
                             if (curPage != girls.lastIndex) {
                                 rotateS = ratio * 180f
+                                if (rotateS >= 180f) {
+                                    this.action = MotionEvent.ACTION_UP
+                                    resetData(this)
+                                }
                                 invalidate()
                             }
                         }
                     }
                 }
                 MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
-                    resetData(event)
+                    resetData(this)
                 }
             }
             return true
