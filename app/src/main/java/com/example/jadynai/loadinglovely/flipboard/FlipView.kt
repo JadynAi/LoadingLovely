@@ -1,6 +1,7 @@
 package com.example.jadynai.loadinglovely.flipboard
 
 import android.content.Context
+import android.graphics.Bitmap
 import android.graphics.Camera
 import android.graphics.Canvas
 import android.graphics.Matrix
@@ -26,58 +27,30 @@ class FlipView(context: Context, attributes: AttributeSet) : View(context, attri
         setLayerType(LAYER_TYPE_SOFTWARE, null)
     }
 
+    private val UP_FLIP = -1
+    private val DOWN_FLIP = 1
+
 
     private var startX: Float = 0f
     private var startY: Float = 0f
 
     //向下翻旋转角度
     private var rotateF = 180f
+        get() = if (field < 0f) 0f else if (field > 180f) 180f else field
     //向上翻旋转角度
     private var rotateS = 0f
+        get() = if (field < 0f) 0f else if (field > 180f) 180f else field
 
     //是否移动上半部分0为松手，1为向下翻，-1为向上翻
     private var statusFlip = 0
 
     private val TAG = "cece"
 
-    override fun onTouchEvent(event: MotionEvent?): Boolean {
-        when (event?.actionMasked) {
-            MotionEvent.ACTION_DOWN -> {
-                startX = event?.x
-                startY = event?.y
-            }
-            MotionEvent.ACTION_MOVE -> {
-                val x = event?.x
-                val y = event?.y
-                //当y运动距离大于x的1.5倍时，才判断为垂直翻动
-                val disY = y - startY
-                if (Math.abs(disY) > 1f && Math.abs(disY) >= Math.abs(x - startX) * 1.5f) {
-                    if (statusFlip == 0) {
-                        statusFlip = if (disY > 0) 1 else -1
-                    }
-                    val ratio = Math.abs(disY) / centerY
-                    if (statusFlip == 1) {
-                        //向下翻
-                        rotateF = (1 - ratio) * 180f
-                    } else {
-                        rotateS = ratio * 180f
-                    }
-                    invalidate()
-                }
-            }
-            MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
-                resetData(event)
-            }
+    //当前页
+    private var curPage = 0
+        get() {
+            return if (field < 0) 0 else if (field > girls.lastIndex) girls.lastIndex else field
         }
-        return true
-    }
-
-    private fun resetData(event: MotionEvent?) {
-        rotateF =180f
-        rotateS = 0f
-        statusFlip = 0
-        invalidate()
-    }
 
     private val camera by lazy {
         Camera()
@@ -95,56 +68,170 @@ class FlipView(context: Context, attributes: AttributeSet) : View(context, attri
         height / 2.toFloat()
     }
 
-    private val bitmap by lazy {
-        BitmapUtils.compress(resources, girls.last(), width, height)
+    private var curBitmap: Bitmap? = null
+        get() = BitmapUtils.compress(resources, girls.get(curPage), width, height)
+
+    private var lastBitmap: Bitmap? = null
+        get() {
+            if (curPage == 0) {
+                return null
+            }
+            return BitmapUtils.compress(resources, girls.get(curPage - 1), width, height)
+        }
+
+    private var nextBitmap: Bitmap? = null
+        get() {
+            if (curPage == girls.lastIndex) {
+                return null
+            }
+            return BitmapUtils.compress(resources, girls.get(curPage + 1), width, height)
+        }
+
+
+    override fun onTouchEvent(event: MotionEvent?): Boolean {
+        event?.apply {
+            when (this.actionMasked) {
+                MotionEvent.ACTION_DOWN -> {
+                    startX = this.x
+                    startY = this.y
+                }
+                MotionEvent.ACTION_MOVE -> {
+                    val x = this.x
+                    val y = this.y
+                    //当y运动距离大于x的1.5倍时，才判断为垂直翻动
+                    val disY = y - startY
+                    if (Math.abs(disY) > 1f && Math.abs(disY) >= Math.abs(x - startX) * 1.5f) {
+                        if (statusFlip == 0) {
+                            //滑动间距为正并且不是第一页判断为向下翻，滑动间距为负并且不是最后一页判断为向上翻
+                            statusFlip = if (disY > 0 && curPage != 0) DOWN_FLIP
+                            else if (disY < 0 && curPage != girls.lastIndex) UP_FLIP else 0
+                        }
+                        val ratio = Math.abs(disY) / centerY
+                        if (statusFlip == DOWN_FLIP) {
+                            //向下翻并且当前页不等于0
+                            rotateF = (1 - ratio) * 180f
+                            invalidate()
+                        } else if (statusFlip == UP_FLIP) {
+                            //向上翻，并且不是最后一页
+                            if (curPage != girls.lastIndex) {
+                                rotateS = ratio * 180f
+                                invalidate()
+                            }
+                        }
+                    }
+                }
+                MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                    resetData(event)
+                }
+            }
+            return true
+        }
+        return super.onTouchEvent(event)
+    }
+
+    private fun resetData(event: MotionEvent) {
+        if (statusFlip != 0) {
+            //抬手的时候，有动画发生
+            if (Math.abs(event.y - startY) <= centerY / 2) {
+                //滑动距离小于1/4屏幕高，判定仍停留在当前页
+                rotateF = 180f
+                rotateS = 0f
+                statusFlip = 0
+                invalidate()
+            } else {
+                //滑动距离超过临界值，判定为跳过当前页
+                if (statusFlip == DOWN_FLIP) {
+                    //下翻到上一页
+                    for (i in rotateF.toInt() downTo 0 step 6) {
+                        invalidate()
+                    }
+                    curPage--
+                } else {
+                    //上翻到下一页
+                    for (i in rotateS.toInt() until 180 step 6) {
+                        invalidate()
+                    }
+                    curPage++
+                }
+                rotateF = 180f
+                rotateS = 0f
+                statusFlip = 0
+            }
+        }
     }
 
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
-        drawFirstHalf(canvas)
-        drawSecondHalf(canvas)
+
+        //绘制当前页底下的一层
+        if (statusFlip == DOWN_FLIP) {
+            //向下翻，滑到上一页
+            drawFirstHalf(canvas, lastBitmap, 180f)
+        } else if (statusFlip == UP_FLIP) {
+            drawSecondHalf(canvas, nextBitmap, 0f)
+        }
+
+        //绘制当前页
+        drawFirstHalf(canvas, curBitmap, rotateF)
+        drawSecondHalf(canvas, curBitmap, rotateS)
+
+        //绘制当前页之上的一层
+        if (statusFlip == DOWN_FLIP) {
+            //向下翻，滑到上一页
+            if (rotateF <= 90f) {
+                drawSecondHalf(canvas, lastBitmap, rotateF)
+            }
+        } else if (statusFlip == UP_FLIP) {
+            if (rotateS >= 90f) {
+                drawFirstHalf(canvas, nextBitmap, rotateS)
+            }
+        }
     }
 
     /*
     * 绘制上半部分，以及上半部分的变化。
     * 上半部分角度由180 变化到 90，递减
     * */
-    fun drawFirstHalf(canvas: Canvas?) {
-        canvas?.save()
-        canvas?.clipRect(0, 0, width, height / 2)
-        camera.save()
+    fun drawFirstHalf(canvas: Canvas?, bitmap: Bitmap?, rotate: Float) {
+        bitmap?.apply {
+            canvas?.save()
+            canvas?.clipRect(0, 0, width, height / 2)
+            camera.save()
 //        drawMatrix.reset()
-        camera.rotateX(rotateF)
-        camera.rotateY(180f)
-        camera.getMatrix(drawMatrix)
-        camera.restore()
-        drawMatrix.preTranslate(-centerX, 0f)
-        drawMatrix.postTranslate(centerX, centerY)
-        //高度变矮
-        drawMatrix.preScale(1.0f, rotateF / 180f)
-        //这里也可以旋转canvas，性能上无差别
-        drawMatrix.preRotate(180f, centerX, centerY / 2)
-        //or旋转Canvas
+            camera.rotateX(if (rotate <= 90f) 90f else rotate)
+            camera.rotateY(180f)
+            camera.getMatrix(drawMatrix)
+            camera.restore()
+            drawMatrix.preTranslate(-centerX, 0f)
+            drawMatrix.postTranslate(centerX, centerY)
+            //高度变矮
+            drawMatrix.preScale(1.0f, rotate / 180f)
+            //这里也可以旋转canvas，性能上无差别
+            drawMatrix.preRotate(180f, centerX, centerY / 2)
+            //or旋转Canvas
 //        canvas?.rotate(180f, centerX, centerY / 2)
-        canvas?.drawBitmap(bitmap, drawMatrix, null)
-        canvas?.restore()
+            canvas?.drawBitmap(this, drawMatrix, null)
+            canvas?.restore()
+        }
     }
 
     /*
     * 绘制下半部分，以及下半部分的变化
     * 下半部分由0 变化到 90，递增
     * */
-    fun drawSecondHalf(canvas: Canvas?) {
-        canvas?.save()
-        camera.save()
-        camera.rotateX(rotateS)
-        camera.getMatrix(drawMatrix)
-        camera.restore()
-        drawMatrix.preTranslate(-centerX, 0f)
-        drawMatrix.postTranslate(centerX, centerY)
-        //高度变矮
-        drawMatrix.preScale(1.0f, (90f - rotateS) / 90f)
-        canvas?.drawBitmap(BitmapUtils.cropSaveSecondHalf(bitmap), drawMatrix, null)
-        canvas?.restore()
+    fun drawSecondHalf(canvas: Canvas?, bitmap: Bitmap?, rotate: Float) {
+        bitmap?.apply {
+            canvas?.save()
+            camera.save()
+            camera.rotateX(if (rotate >= 90f) 90f else rotate)
+            camera.getMatrix(drawMatrix)
+            camera.restore()
+            drawMatrix.preTranslate(-centerX, 0f)
+            drawMatrix.postTranslate(centerX, centerY)
+            //高度变矮
+            drawMatrix.preScale(1.0f, (90f - rotate) / 90f)
+            canvas?.drawBitmap(BitmapUtils.cropSaveSecondHalf(this), drawMatrix, null)
+            canvas?.restore()
+        }
     }
 }
