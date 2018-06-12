@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.PointF;
 import android.graphics.PorterDuff;
 import android.support.annotation.FloatRange;
 import android.support.annotation.IntRange;
@@ -30,7 +31,7 @@ public abstract class BasePen {
     protected Canvas mCanvas;
     private Bitmap mBitmap;
 
-    private List<Point> mPoints;
+    private List<PointF> mPoints;
 
     public BasePen(int w, int h) {
         init(w, h);
@@ -70,7 +71,7 @@ public abstract class BasePen {
         float x = event1.getX();
         float y = event1.getY();
         if (x > 0 && y > 0) {
-            mPoints.add(new Point(x, y));
+            mPoints.add(new PointF(x, y));
         }
     }
 
@@ -91,20 +92,20 @@ public abstract class BasePen {
         mPoints.clear();
     }
 
-    protected Point getCurPoint() {
+    protected PointF getCurPoint() {
         if (mPoints == null || mPoints.isEmpty()) {
-            return new Point(0, 0);
+            return new PointF(0, 0);
         }
         return mPoints.get(mPoints.size() - 1);
     }
 
-    protected List<Point> getPoints() {
-        ArrayList<Point> points = new ArrayList<>();
+    protected List<PointF> getPoints() {
+        ArrayList<PointF> points = new ArrayList<>();
         if (mPoints == null) {
             return points;
         }
-        for (Point point : mPoints) {
-            points.add(point.clone());
+        for (PointF point : mPoints) {
+            points.add(point);
         }
         return points;
     }
@@ -123,8 +124,8 @@ public abstract class BasePen {
         if (index < 1 || index >= getPoints().size()) {
             return 0;
         }
-        Point indexP = getPoints().get(index);
-        Point lastP = getPoints().get(index - 1);
+        PointF indexP = getPoints().get(index);
+        PointF lastP = getPoints().get(index - 1);
         return Math.hypot(indexP.x - lastP.x, indexP.y - lastP.y);
     }
 
@@ -135,8 +136,8 @@ public abstract class BasePen {
         if (index < 1 || index >= getPoints().size()) {
             return -1;
         }
-        Point indexP = getPoints().get(index);
-        Point lastP = getPoints().get(index - 1);
+        PointF indexP = getPoints().get(index);
+        PointF lastP = getPoints().get(index - 1);
         float gapX = lastP.x - indexP.x;
         float gapY = lastP.y - indexP.y;
         return Math.toRadians(Math.toDegrees(Math.atan2(gapY, gapX)));
