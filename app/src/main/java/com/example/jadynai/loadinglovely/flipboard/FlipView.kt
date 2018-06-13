@@ -185,10 +185,12 @@ class FlipView(context: Context, attributes: AttributeSet) : View(context, attri
         //绘制当前页之上的一层，翻页完成后
         if (statusFlip == DOWN_FLIP) {
             if (rotateF <= 90f) {
+                drawSecondShadow(canvas, rotateF)
                 drawSecondHalf(canvas, lastBitmap, rotateF)
             }
         } else if (statusFlip == UP_FLIP) {
             if (rotateS >= 90f) {
+                drawFirstShadow(canvas, rotateS)
                 drawFirstHalf(canvas, nextBitmap, rotateS)
             }
         }
