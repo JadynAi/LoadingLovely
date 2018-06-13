@@ -6,6 +6,7 @@ import android.graphics.Camera
 import android.graphics.Canvas
 import android.graphics.Matrix
 import android.util.AttributeSet
+import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import com.example.jadynai.loadinglovely.R
@@ -44,8 +45,6 @@ class FlipView(context: Context, attributes: AttributeSet) : View(context, attri
     //是否移动上半部分0为松手，1为向下翻，-1为向上翻
     private var statusFlip = 0
 
-    private val TAG = "cece"
-
     //当前页
     private var curPage = 0
         get() {
@@ -68,9 +67,11 @@ class FlipView(context: Context, attributes: AttributeSet) : View(context, attri
         height / 2.toFloat()
     }
 
+    //当前Bitmap
     private var curBitmap: Bitmap? = null
         get() = BitmapUtils.compress(resources, girls.get(curPage), width, height)
 
+    //上一张Bitmap
     private var lastBitmap: Bitmap? = null
         get() {
             if (curPage == 0) {
@@ -79,6 +80,7 @@ class FlipView(context: Context, attributes: AttributeSet) : View(context, attri
             return BitmapUtils.compress(resources, girls.get(curPage - 1), width, height)
         }
 
+    //下一张Bitmap
     private var nextBitmap: Bitmap? = null
         get() {
             if (curPage == girls.lastIndex) {
@@ -110,19 +112,13 @@ class FlipView(context: Context, attributes: AttributeSet) : View(context, attri
                         if (statusFlip == DOWN_FLIP) {
                             //向下翻并且当前页不等于0
                             rotateF = (1 - ratio) * 180f
-                            if (rotateF <= 0f) {
-                                this.action = MotionEvent.ACTION_UP
-                                resetData(this)
-                            }
+                            Log.d("cece", ": rotateF : " + rotateF);
                             invalidate()
                         } else if (statusFlip == UP_FLIP) {
                             //向上翻，并且不是最后一页
                             if (curPage != girls.lastIndex) {
                                 rotateS = ratio * 180f
-                                if (rotateS >= 180f) {
-                                    this.action = MotionEvent.ACTION_UP
-                                    resetData(this)
-                                }
+                                Log.d("cece", ": rotateS : " + rotateS);
                                 invalidate()
                             }
                         }
@@ -139,6 +135,7 @@ class FlipView(context: Context, attributes: AttributeSet) : View(context, attri
 
     private fun resetData(event: MotionEvent) {
         if (statusFlip != 0) {
+            drawMatrix.reset()
             //抬手的时候，有动画发生
             if (Math.abs(event.y - startY) <= centerY / 2) {
                 //滑动距离小于1/4屏幕高，判定仍停留在当前页
@@ -213,7 +210,7 @@ class FlipView(context: Context, attributes: AttributeSet) : View(context, attri
             drawMatrix.preTranslate(-centerX, 0f)
             drawMatrix.postTranslate(centerX, centerY)
             //高度变矮
-            drawMatrix.preScale(1.0f, rotate / 180f)
+            drawMatrix.preScale(1.0f, (rotate - 90f) / 90f)
             //这里也可以旋转canvas，性能上无差别
             drawMatrix.preRotate(180f, centerX, centerY / 2)
             //or旋转Canvas
