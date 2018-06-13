@@ -168,21 +168,22 @@ class FlipView(context: Context, attributes: AttributeSet) : View(context, attri
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
 
-        //绘制当前页底下的一层
+        //绘制当前页底下的一层,翻页进行中
         if (statusFlip == DOWN_FLIP) {
             //向下翻，滑到上一页
             drawFirstHalf(canvas, lastBitmap, 180f)
+            drawFirstShadow(canvas, rotateF)
         } else if (statusFlip == UP_FLIP) {
             drawSecondHalf(canvas, nextBitmap, 0f)
+            drawSecondShadow(canvas, rotateS)
         }
 
         //绘制当前页
         drawFirstHalf(canvas, curBitmap, rotateF)
         drawSecondHalf(canvas, curBitmap, rotateS)
 
-        //绘制当前页之上的一层
+        //绘制当前页之上的一层，翻页完成后
         if (statusFlip == DOWN_FLIP) {
-            //向下翻，滑到上一页
             if (rotateF <= 90f) {
                 drawSecondHalf(canvas, lastBitmap, rotateF)
             }
@@ -237,6 +238,34 @@ class FlipView(context: Context, attributes: AttributeSet) : View(context, attri
             drawMatrix.preScale(1.0f, (90f - rotate) / 90f)
             canvas?.drawBitmap(BitmapUtils.cropSaveSecondHalf(this), drawMatrix, null)
             canvas?.restore()
+        }
+    }
+
+    /*
+    * 上半部分蒙层绘制
+    * */
+    fun drawFirstShadow(canvas: Canvas?, rotate: Float) {
+        if (rotate >= 90f) {
+            canvas?.apply {
+                this.save()
+                this.clipRect(0, 0, width, height / 2)
+                this.drawARGB((153 * (rotate - 90f) / 90f).toInt(), 0, 0, 0)
+                this.restore()
+            }
+        }
+    }
+
+    /*
+    * 下半部分蒙层绘制
+    * */
+    fun drawSecondShadow(canvas: Canvas?, rotate: Float) {
+        if (rotate <= 90f) {
+            canvas?.apply {
+                this.save()
+                this.clipRect(0, height / 2, width, height)
+                this.drawARGB((153 * (90f - rotate) / 90f).toInt(), 0, 0, 0)
+                this.restore()
+            }
         }
     }
 }
