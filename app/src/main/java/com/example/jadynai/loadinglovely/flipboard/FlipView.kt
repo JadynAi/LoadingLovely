@@ -24,10 +24,6 @@ class FlipView(context: Context, attributes: AttributeSet) : View(context, attri
     val girls = arrayListOf(R.drawable.girl_0, R.drawable.girl_1, R.drawable.girl_2,
             R.drawable.girl_3, R.drawable.girl_4, R.drawable.girl_5, R.drawable.girl_6)
 
-    init {
-        setLayerType(LAYER_TYPE_SOFTWARE, null)
-    }
-
     private val UP_FLIP = -1
     private val DOWN_FLIP = 1
 
