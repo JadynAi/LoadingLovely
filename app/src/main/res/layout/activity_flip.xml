@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     tools:context=".flipboard.FlipActivity">
     
-    <com.example.jadynai.loadinglovely.flipboard.FlipView
+    <com.example.jadynai.loadinglovely.flipboard.FlipCYView
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
