@@ -187,11 +187,13 @@ class FlipCYView(context: Context, attributes: AttributeSet) : View(context, att
                 drawSecondShadow(canvas, rotateF + 180f)
                 drawSecondHalf(canvas, lastBitmap, rotateF + 180f)
             }
+            drawFirstColor(canvas, 20)
         } else if (statusFlip == UP_FLIP) {
             if (rotateS >= 90f) {
                 drawFirstShadow(canvas, rotateS - 180f)
                 drawFirstHalf(canvas, nextBitmap, rotateS - 180f)
             }
+            drawSecondColor(canvas, 20)
         }
     }
 
@@ -242,12 +244,7 @@ class FlipCYView(context: Context, attributes: AttributeSet) : View(context, att
     * */
     fun drawFirstShadow(canvas: Canvas?, rotate: Float) {
         if (rotate >= -90f) {
-            canvas?.apply {
-                this.save()
-                this.clipRect(0, 0, width, height / 2)
-                this.drawARGB((153 * (90f - Math.abs(rotate)) / 90f).toInt(), 0, 0, 0)
-                this.restore()
-            }
+            drawFirstColor(canvas, (153 * (90f - Math.abs(rotate)) / 90f).toInt())
         }
     }
 
@@ -256,12 +253,25 @@ class FlipCYView(context: Context, attributes: AttributeSet) : View(context, att
     * */
     fun drawSecondShadow(canvas: Canvas?, rotate: Float) {
         if (rotate <= 90f) {
-            canvas?.apply {
-                this.save()
-                this.clipRect(0, height / 2, width, height)
-                this.drawARGB((153 * (90f - Math.abs(rotate)) / 90f).toInt(), 0, 0, 0)
-                this.restore()
-            }
+            drawSecondColor(canvas, (153 * (90f - Math.abs(rotate)) / 90f).toInt())
+        }
+    }
+
+    private fun drawFirstColor(canvas: Canvas?, alpha: Int) {
+        canvas?.apply {
+            this.save()
+            this.clipRect(0, 0, width, height / 2)
+            this.drawARGB(alpha, 0, 0, 0)
+            this.restore()
+        }
+    }
+
+    private fun drawSecondColor(canvas: Canvas?, alpha: Int) {
+        canvas?.apply {
+            this.save()
+            this.clipRect(0, height / 2, width, height)
+            this.drawARGB(alpha, 0, 0, 0)
+            this.restore()
         }
     }
 }
