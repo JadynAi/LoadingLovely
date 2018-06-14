@@ -88,10 +88,10 @@ class DebugView(context: Context, attributes: AttributeSet) : View(context, attr
             canvas?.save()
             camera.save()
             canvas?.clipRect(0, centerY.toInt(), width, height)
-            camera.rotateX(45f)
+            camera.rotateX(5f)
             camera.getMatrix(drawMatrix)
             camera.restore()
-            drawMatrix.preScale(1.0f, 0.5f)
+//            drawMatrix.preScale(1.0f, 0.5f)
             drawMatrix.preTranslate(-centerX, -centerY)
             drawMatrix.postTranslate(centerX, centerY)
             //高度变矮

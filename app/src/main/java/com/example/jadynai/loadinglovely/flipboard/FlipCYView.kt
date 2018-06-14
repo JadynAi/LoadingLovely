@@ -22,7 +22,8 @@ import com.example.jadynai.loadinglovely.R
 class FlipCYView(context: Context, attributes: AttributeSet) : View(context, attributes) {
 
     val girls = arrayListOf(R.drawable.girl_0, R.drawable.girl_1, R.drawable.girl_2,
-            R.drawable.girl_3, R.drawable.girl_4, R.drawable.girl_5, R.drawable.girl_6)
+            R.drawable.girl_3, R.drawable.girl_4, R.drawable.girl_5, R.drawable.girl_6
+            , R.drawable.girl_7, R.drawable.girl_8)
 
     private val UP_FLIP = -1
     private val DOWN_FLIP = 1
@@ -144,7 +145,7 @@ class FlipCYView(context: Context, attributes: AttributeSet) : View(context, att
                 //滑动距离超过临界值，判定为跳过当前页
                 if (statusFlip == DOWN_FLIP) {
                     //下翻到上一页
-                    for (i in rotateF.toInt() downTo   -180 step 6) {
+                    for (i in rotateF.toInt() downTo -180 step 6) {
                         invalidate()
                     }
                     curPage--
@@ -182,6 +183,7 @@ class FlipCYView(context: Context, attributes: AttributeSet) : View(context, att
         //绘制当前页之上的一层，翻页完成后
         if (statusFlip == DOWN_FLIP) {
             if (rotateF <= -90f) {
+                //先绘制阴影页面阴影
                 drawSecondShadow(canvas, rotateF + 180f)
                 drawSecondHalf(canvas, lastBitmap, rotateF + 180f)
             }
@@ -195,7 +197,7 @@ class FlipCYView(context: Context, attributes: AttributeSet) : View(context, att
 
     /*
     * 绘制上半部分，以及上半部分的变化。
-    * 上半部分角度由180 变化到 90，递减
+    * 上半部分角度由0  变化到 -90，递减
     * */
     fun drawFirstHalf(canvas: Canvas?, bitmap: Bitmap?, rotate: Float) {
         bitmap?.apply {
@@ -236,7 +238,7 @@ class FlipCYView(context: Context, attributes: AttributeSet) : View(context, att
     }
 
     /*
-    * 上半部分蒙层绘制
+    * 上半部分阴影绘制
     * */
     fun drawFirstShadow(canvas: Canvas?, rotate: Float) {
         if (rotate >= -90f) {
@@ -250,7 +252,7 @@ class FlipCYView(context: Context, attributes: AttributeSet) : View(context, att
     }
 
     /*
-    * 下半部分蒙层绘制
+    * 下半部分阴影绘制
     * */
     fun drawSecondShadow(canvas: Canvas?, rotate: Float) {
         if (rotate <= 90f) {
