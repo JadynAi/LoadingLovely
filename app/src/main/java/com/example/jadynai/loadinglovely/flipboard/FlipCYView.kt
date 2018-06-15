@@ -50,7 +50,10 @@ class FlipCYView(context: Context, attributes: AttributeSet) : View(context, att
         }
 
     private val camera by lazy {
-        Camera()
+        val camera1 = Camera()
+        //将摄像头拉远，翻页效果更加明显
+        camera1.setLocation(0f, 0f, -20f)
+        camera1
     }
 
     private val drawMatrix by lazy {
