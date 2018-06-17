@@ -32,15 +32,15 @@ class FlipCYView(context: Context, attributes: AttributeSet) : View(context, att
     private var startX: Float = 0f
     private var startY: Float = 0f
 
-    //向下翻旋转角度,0~-90f
+    //向下翻旋转角度,0~-180f
     private var rotateF = 0f
         get() = if (field < -180f) -180f else if (field > 0f) 0f else field
 
-    //向上翻旋转角度,0~90f
+    //向上翻旋转角度,0~180f
     private var rotateS = 0f
         get() = if (field < 0f) 0f else if (field > 180f) 180f else field
 
-    //是否移动上半部分0为松手，1为向下翻，-1为向上翻
+    //翻动状态0为松手，1为向下翻，-1为向上翻
     private var statusFlip = 0
 
     //当前页
@@ -137,7 +137,7 @@ class FlipCYView(context: Context, attributes: AttributeSet) : View(context, att
     private fun resetData(event: MotionEvent) {
         if (statusFlip != 0) {
             drawMatrix.reset()
-            //抬手的时候，有动画发生
+            //放手的时候，有动画发生
             if (Math.abs(event.y - startY) <= centerY / 2) {
                 //滑动距离小于1/4屏幕高，判定仍停留在当前页
                 rotateF = 0f
@@ -147,13 +147,13 @@ class FlipCYView(context: Context, attributes: AttributeSet) : View(context, att
             } else {
                 //滑动距离超过临界值，判定为跳过当前页
                 if (statusFlip == DOWN_FLIP) {
-                    //下翻到上一页
+                    //自动执行完下翻到上一页的动作
                     for (i in rotateF.toInt() downTo -180 step 6) {
                         invalidate()
                     }
                     curPage--
                 } else {
-                    //上翻到下一页
+                    //自动执行完上翻到下一页的动作
                     for (i in rotateS.toInt() until 180 step 6) {
                         invalidate()
                     }
@@ -186,10 +186,11 @@ class FlipCYView(context: Context, attributes: AttributeSet) : View(context, att
         //绘制当前页之上的一层，翻页完成后
         if (statusFlip == DOWN_FLIP) {
             if (rotateF <= -90f) {
-                //先绘制阴影页面阴影
+                //先绘制阴影
                 drawSecondShadow(canvas, rotateF + 180f)
                 drawSecondHalf(canvas, lastBitmap, rotateF + 180f)
             }
+            //绘制覆盖在翻页Bitmap之上淡淡透明层，透明度固定
             drawFirstColor(canvas, 20)
         } else if (statusFlip == UP_FLIP) {
             if (rotateS >= 90f) {
@@ -209,13 +210,14 @@ class FlipCYView(context: Context, attributes: AttributeSet) : View(context, att
             canvas?.save()
             canvas?.clipRect(0, 0, width, height / 2)
             camera.save()
+            //camera绕着X轴旋转，角度变化小于-90度，不再处理
             camera.rotateX(if (rotate <= -90f) -90f else rotate)
             camera.getMatrix(drawMatrix)
             camera.restore()
+            //随着旋转角度变化的缩放值，只缩放Y轴
             drawMatrix.preScale(1.0f, (rotate + 90f) / 90f)
             drawMatrix.preTranslate(-centerX, -centerY)
             drawMatrix.postTranslate(centerX, centerY)
-            //高度变矮
             canvas?.drawBitmap(this, drawMatrix, null)
             canvas?.restore()
         }
@@ -236,7 +238,6 @@ class FlipCYView(context: Context, attributes: AttributeSet) : View(context, att
             drawMatrix.preScale(1.0f, (90f - rotate) / 90f)
             drawMatrix.preTranslate(-centerX, -centerY)
             drawMatrix.postTranslate(centerX, centerY)
-            //高度变矮
             canvas?.drawBitmap(this, drawMatrix, null)
             canvas?.restore()
         }
@@ -247,6 +248,7 @@ class FlipCYView(context: Context, attributes: AttributeSet) : View(context, att
     * */
     fun drawFirstShadow(canvas: Canvas?, rotate: Float) {
         if (rotate >= -90f) {
+            //阴影随着旋转角度实时改变透明度
             drawFirstColor(canvas, (153 * (90f - Math.abs(rotate)) / 90f).toInt())
         }
     }
@@ -260,6 +262,9 @@ class FlipCYView(context: Context, attributes: AttributeSet) : View(context, att
         }
     }
 
+    /*
+    * 覆盖在正在翻页的Bitmap之上，固定透明度
+    * */
     private fun drawFirstColor(canvas: Canvas?, alpha: Int) {
         canvas?.apply {
             this.save()

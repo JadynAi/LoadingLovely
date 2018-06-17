@@ -47,7 +47,7 @@ class DebugView(context: Context, attributes: AttributeSet) : View(context, attr
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
         //绘制当前页
-//        drawFirstHalf(canvas, curBitmap, 0f)
+        drawFirstHalf(canvas, curBitmap, 0f)
         drawSecondHalf(canvas, curBitmap, 0f)
 
     }
@@ -61,19 +61,13 @@ class DebugView(context: Context, attributes: AttributeSet) : View(context, attr
             canvas?.save()
             canvas?.clipRect(0, 0, width, height / 2)
             camera.save()
-//        drawMatrix.reset()
-            camera.rotateX(if (rotate <= 90f) 90f else rotate)
-            camera.rotateY(180f)
+            camera.rotateX(0f)
             camera.getMatrix(drawMatrix)
             camera.restore()
-            drawMatrix.preTranslate(-centerX, 0f)
+            drawMatrix.preScale(1.0f, 1.0f)
+            drawMatrix.preTranslate(-centerX, -centerY)
             drawMatrix.postTranslate(centerX, centerY)
             //高度变矮
-            drawMatrix.preScale(1.0f, (rotate - 90f) / 90f)
-            //这里也可以旋转canvas，性能上无差别
-            drawMatrix.preRotate(180f, centerX, centerY / 2)
-            //or旋转Canvas
-//        canvas?.rotate(180f, centerX, centerY / 2)
             canvas?.drawBitmap(this, drawMatrix, null)
             canvas?.restore()
         }
@@ -88,10 +82,10 @@ class DebugView(context: Context, attributes: AttributeSet) : View(context, attr
             canvas?.save()
             camera.save()
             canvas?.clipRect(0, centerY.toInt(), width, height)
-            camera.rotateX(5f)
+            camera.rotateX(0f)
             camera.getMatrix(drawMatrix)
             camera.restore()
-//            drawMatrix.preScale(1.0f, 0.5f)
+            drawMatrix.preScale(1.0f, 1f)
             drawMatrix.preTranslate(-centerX, -centerY)
             drawMatrix.postTranslate(centerX, centerY)
             //高度变矮
