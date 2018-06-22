@@ -28,6 +28,7 @@ class FlipCYView(context: Context, attributes: AttributeSet) : View(context, att
     private val UP_FLIP = -1
     private val DOWN_FLIP = 1
 
+    private val standDisRatio = 0.75f
 
     private var startX: Float = 0f
     private var startY: Float = 0f
@@ -109,7 +110,7 @@ class FlipCYView(context: Context, attributes: AttributeSet) : View(context, att
                             statusFlip = if (disY > 0 && curPage != 0) DOWN_FLIP
                             else if (disY < 0 && curPage != girls.lastIndex) UP_FLIP else 0
                         }
-                        val ratio = Math.abs(disY) / centerY
+                        val ratio = Math.abs(disY) / (centerY * standDisRatio)
                         if (statusFlip == DOWN_FLIP) {
                             //向下翻并且当前页不等于0
                             rotateF = ratio * -180f
@@ -138,7 +139,7 @@ class FlipCYView(context: Context, attributes: AttributeSet) : View(context, att
         if (statusFlip != 0) {
             drawMatrix.reset()
             //放手的时候，有动画发生
-            if (Math.abs(event.y - startY) <= centerY / 2) {
+            if (Math.abs(event.y - startY) <= centerY * standDisRatio / 2) {
                 //滑动距离小于1/4屏幕高，判定仍停留在当前页
                 rotateF = 0f
                 rotateS = 0f
