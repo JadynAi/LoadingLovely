@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -7,8 +7,30 @@
     android:layout_height="match_parent"
     tools:context=".flipboard.FlipActivity">
     
-    <com.example.jadynai.loadinglovely.flipboard.FlipCYView
+    <com.example.jadynai.loadinglovely.flipboard.DebugView
+        android:id="@+id/debug_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
+    
+    <TextView
+        android:id="@+id/pre_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:text="Pre"
+        android:padding="20dp"
+        android:background="@color/colorAccent"
+        />
 
-</android.support.constraint.ConstraintLayout>
+    <TextView
+        android:id="@+id/post_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:text="Post"
+        android:padding="20dp"
+        android:background="@color/colorAccent"
+        />
+
+</RelativeLayout>
