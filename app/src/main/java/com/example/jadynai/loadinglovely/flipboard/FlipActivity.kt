@@ -11,9 +11,9 @@ class FlipActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_flip)
         pre_tv.setOnClickListener {
-            debug_view.drawMatrix.postRotate(45f)
-            debug_view.drawMatrix.preTranslate(-debug_view.centerX, -debug_view.centerY)
-            debug_view.drawMatrix.postTranslate(debug_view.centerX, debug_view.centerY)
+            //缩放和skew搭配形成旋转效果
+            debug_view.drawMatrix.postScale(0.707f,0.707f)
+            debug_view.drawMatrix.postSkew(-0.707f,0.707f)
             debug_view.invalidate()
         }
         post_tv.setOnClickListener {

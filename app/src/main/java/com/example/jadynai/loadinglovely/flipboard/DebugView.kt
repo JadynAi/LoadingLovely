@@ -40,7 +40,7 @@ class DebugView(context: Context, attributes: AttributeSet) : View(context, attr
 
     //当前Bitmap
     private var curBitmap: Bitmap? = null
-        get() = BitmapUtils.compress(resources, girls.get(0), width, height)
+        get() = BitmapUtils.compress(resources, girls.get(0), 100, 100)
 
 
     override fun onDraw(canvas: Canvas?) {
