@@ -23,6 +23,8 @@
             android:screenOrientation="portrait"
             
             >
+        </activity>
+        <activity android:name=".pullarc.PullArcActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 
