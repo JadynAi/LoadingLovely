@@ -3,6 +3,7 @@ package com.example.jadynai.loadinglovely.flipboard
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import com.example.jadynai.loadinglovely.R
+import com.example.jadynai.loadinglovely.R.id.*
 import kotlinx.android.synthetic.main.activity_flip.*
 
 class FlipActivity : AppCompatActivity() {
