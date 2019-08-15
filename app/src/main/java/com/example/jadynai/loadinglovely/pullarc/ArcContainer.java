@@ -61,7 +61,7 @@ public class ArcContainer extends RelativeLayout {
         mClipPath.reset();
         mClipPath.moveTo(0, mOriginalHeight);
         mPointMid.y = getMeasuredHeight();
-        mClipPath.cubicTo(0, mOriginalHeight, getMeasuredWidth() / 2,
+        mClipPath.cubicTo(0, mOriginalHeight, getMeasuredWidth() * 0.5f,
                 calculateBezierPeak(0, mOriginalHeight,
                         getMeasuredWidth() / 2, getMeasuredHeight(), getMeasuredWidth(), mOriginalHeight)[1],
                 getMeasuredWidth(), mOriginalHeight);

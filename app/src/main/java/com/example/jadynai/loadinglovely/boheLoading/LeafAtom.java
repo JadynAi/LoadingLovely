@@ -204,6 +204,7 @@ public class LeafAtom {
         mTwoRpath.rewind();
 
         mMainPath.moveTo(mX, mY);
+
     }
 
     public void endAndClear() {
