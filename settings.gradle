@@ -13,4 +13,5 @@ dependencyResolutionManagement {
     }
 }
 rootProject.name = "LoadingLovely"
-include ':app'
+//include ':app'
+include ':composeapp'
