@@ -10,7 +10,6 @@ import android.widget.AbsListView;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
-import com.a520wcf.yllistview.YLListView;
 import com.example.jadynai.loadinglovely.R;
 
 /**
@@ -22,18 +21,18 @@ import com.example.jadynai.loadinglovely.R;
  */
 public class PullArcActivity extends AppCompatActivity {
 
-    private YLListView listView;
+//    private YLListView listView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_pullarc);
-        listView = findViewById(R.id.listView);
+//        listView = findViewById(R.id.listView);
         View topView = View.inflate(this, R.layout.arc, null);
         AbsListView.LayoutParams params = new AbsListView.LayoutParams(AbsListView.LayoutParams.MATCH_PARENT, 550);
         topView.setLayoutParams(params);
-        listView.addHeaderView(topView);
-        listView.setAdapter(new DemoAdapter());
+//        listView.addHeaderView(topView);
+//        listView.setAdapter(new DemoAdapter());
     }
 
 
